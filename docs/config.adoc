@@ -1,0 +1,12 @@
+:doctype: article
+:encoding: utf-8
+:lang: ja
+:toc: left
+:toclevels: 3
+:sectanchors:
+:sectlinks:
+:sectnums:
+:allow-uri-read:
+:scripts: cjk
+:pdf-fontsdir: /usr/share/fonts/noto;/usr/share/fonts/all
+:pdf-theme: default-with-font-fallback

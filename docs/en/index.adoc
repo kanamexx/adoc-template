@@ -1,0 +1,117 @@
+include::config.adoc[]
+
+= AsciiDoc Template Sample Document
+
+== Introduction
+
+This document is a sample for verifying the AsciiDoc Template repository.
+You can automatically generate HTML and PDF using GitHub Actions.
+
+== Features
+
+=== Text Formatting
+
+You can use basic formatting such as *bold*, _italic_, and `monospace font`.
+
+=== Lists
+
+.Unordered List
+* Item 1
+* Item 2
+* Item 3
+
+.Ordered List
+. First item
+. Second item
+. Third item
+
+=== Code Block
+
+[source,bash]
+----
+#!/bin/bash
+echo "Hello, AsciiDoc!"
+----
+
+=== Table
+
+[cols="1,2,3"]
+|===
+|Header 1 |Header 2 |Header 3
+
+|Cell 1
+|Cell 2
+|Cell 3
+
+|Cell 4
+|Cell 5
+|Cell 6
+|===
+
+=== Quote
+
+[quote, AsciiDoc Official Documentation]
+____
+AsciiDoc is a text document format for writing notes, documentation, articles, books, slideshows, web pages, man pages, and more.
+____
+
+=== Image
+
+Here is a sample image:
+
+.Sample Image
+image::../images/sample.png[AsciiDoc Template Sample Image, 400, 300]
+
+=== Mermaid Diagrams
+
+Here is an example of a flowchart using Mermaid:
+
+.Document Build Flow
+[mermaid]
+----
+flowchart TD
+    A[Edit AsciiDoc File] --> B{Build Method}
+    B -->|Local| C[Docker build]
+    B -->|CI/CD| D[GitHub Actions]
+    C --> E[docker run]
+    D --> F[Tag Push or Manual Run]
+    E --> G[output/ Directory]
+    F --> G
+    G --> H[HTML]
+    G --> I[PDF]
+----
+
+Here is an example of a sequence diagram:
+
+.Build Process Sequence
+[mermaid]
+----
+sequenceDiagram
+    participant User as User
+    participant Docker as Docker Container
+    participant Asciidoctor as Asciidoctor
+    participant Output as Output Files
+
+    User->>Docker: docker run
+    Docker->>Asciidoctor: Execute build.sh
+    Asciidoctor->>Asciidoctor: Generate HTML
+    Asciidoctor->>Asciidoctor: Generate PDF
+    Asciidoctor->>Output: Output Files
+    Output->>User: Download HTML/PDF
+----
+
+== Build Instructions
+
+You can build using Docker:
+
+[source,bash]
+----
+docker build -t adoc-builder .
+docker run --rm -v $(pwd)/docs:/docs:ro -v $(pwd)/output:/output adoc-builder
+----
+
+Build artifacts will be output to the `output/` directory.
+
+== Summary
+
+By using this template, you can easily convert AsciiDoc documents to HTML and PDF.

@@ -10,42 +10,97 @@ permissions:
   contents: write
   pages: write
   id-token: write
+  packages: read
 
 concurrency:
   group: asciidoc-build
   cancel-in-progress: true
 
+env:
+  REGISTRY: ghcr.io
+  IMAGE_NAME: ${{ github.repository }}/adoc-builder
+
 jobs:
-  build:
-    name: Build AsciiDoc to HTML and PDF
+  build-html:
+    name: Build HTML
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - name: Set up Docker Buildx
-        uses: docker/setup-buildx-action@v3
-      - name: Cache Docker layers
-        uses: actions/cache@v4
+
+      - name: Log in to Container Registry
+        uses: docker/login-action@v3
         with:
-          path: /tmp/.buildx-cache
-          key: ${{ runner.os }}-buildx-${{ hashFiles('Dockerfile') }}
-          restore-keys: |
-            ${{ runner.os }}-buildx-
-      - name: Build Docker image with cache
-        uses: docker/build-push-action@v6
+          registry: ${{ env.REGISTRY }}
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Pull Docker image
+        run: docker pull ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:latest
+
+      - name: Build HTML
+        run: |
+          docker run --rm \
+            -v $(pwd)/docs:/docs:ro \
+            -v $(pwd)/output:/output \
+            ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:latest \
+            /bin/bash -c "asciidoctor -r asciidoctor-diagram -a allow-uri-read -a scripts=cjk -a mermaid-puppeteer-config=puppeteer-config.json -a data-uri -a mask -D ../output index.adoc && cp -r images ../output/images"
+
+      - name: Upload HTML artifact
+        uses: actions/upload-artifact@v4
         with:
-          context: .
-          load: true
-          tags: adoc-builder:latest
-          cache-from: type=local,src=/tmp/.buildx-cache
-          cache-to: type=local,dest=/tmp/.buildx-cache-new,mode=max
-      - name: Move cache
+          name: html-output
+          path: output/
+          retention-days: 30
+
+  build-pdf:
+    name: Build PDF
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Log in to Container Registry
+        uses: docker/login-action@v3
+        with:
+          registry: ${{ env.REGISTRY }}
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Pull Docker image
+        run: docker pull ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:latest
+
+      - name: Build PDF
         run: |
-          rm -rf /tmp/.buildx-cache
-          mv /tmp/.buildx-cache-new /tmp/.buildx-cache
-      - name: Build AsciiDoc documents
-        run: |
-          docker run --rm -v $(pwd)/docs:/docs:ro -v $(pwd)/output:/output adoc-builder
-      - name: Upload artifacts
+          docker run --rm \
+            -v $(pwd)/docs:/docs:ro \
+            -v $(pwd)/output:/output \
+            ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:latest \
+            /bin/bash -c "asciidoctor-pdf -r asciidoctor-diagram -a allow-uri-read -a scripts=cjk -a pdf-theme=default-with-fallback-font -a mermaid-puppeteer-config=puppeteer-config.json -D ../output index.adoc"
+
+      - name: Upload PDF artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: pdf-output
+          path: output/
+          retention-days: 30
+
+  combine-artifacts:
+    name: Combine Artifacts
+    runs-on: ubuntu-latest
+    needs: [build-html, build-pdf]
+    steps:
+      - name: Download HTML artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: html-output
+          path: output/
+
+      - name: Download PDF artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: pdf-output
+          path: output/
+
+      - name: Upload combined artifacts
         uses: actions/upload-artifact@v4
         with:
           name: asciidoc-output

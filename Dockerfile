@@ -20,17 +20,6 @@ RUN apk add --no-cache \
     gem install asciidoctor-diagram && \
     npm install -g @mermaid-js/mermaid-cli
 
-# Install asciidoctor-diagram, graphviz, mermaid-cli, and Chromium with dependencies for diagram support
-RUN gem install asciidoctor-diagram && \
-    apk add --no-cache graphviz nodejs npm chromium \
-      nss \
-      freetype \
-      freetype-dev \
-      harfbuzz \
-      ca-certificates \
-      ttf-dejavu && \
-    npm install -g @mermaid-js/mermaid-cli
-
 ENV PUPPETEER_EXECUTABLE_PATH=/usr/bin/chromium
 
 # Create Puppeteer config to enable --no-sandbox

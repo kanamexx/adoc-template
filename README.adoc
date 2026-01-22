@@ -80,3 +80,88 @@ docker run --rm -v $(pwd)/docs:/docs:ro -v $(pwd)/output:/output adoc-builder
 == ライセンス
 
 MIT License
+
+'''
+
+= AsciiDoc Template (English)
+
+A template repository for converting AsciiDoc documents to HTML and PDF.
+
+== Overview
+
+This repository provides a template for creating documentation using AsciiDoc.
+It uses Docker containers to unify the build environment and enables automated builds with GitHub Actions.
+
+== Features
+
+* Convert AsciiDoc to HTML
+* Convert AsciiDoc to PDF (with Japanese support)
+* Mermaid diagram support
+* Automated builds with GitHub Actions
+
+== Directory Structure
+
+[source]
+----
+.
+├── .github/
+│   └── workflows/
+│       └── build-html-pdf.yml  # GitHub Actions workflow
+├── docs/
+│   ├── ja/                     # Japanese documents
+│   │   ├── config.adoc         # AsciiDoc configuration (Japanese)
+│   │   └── index.adoc          # Main document (Japanese)
+│   ├── en/                     # English documents
+│   │   ├── config.adoc         # AsciiDoc configuration (English)
+│   │   └── index.adoc          # Main document (English)
+│   ├── images/                 # Shared images
+│   ├── pdf-configs/
+│   │   ├── config.js           # PDF configuration
+│   │   └── style.yml           # PDF style configuration
+│   └── puppeteer-config.json   # Puppeteer configuration (for Mermaid)
+├── scripts/
+│   └── build.sh                # Build script (multilingual support)
+├── Dockerfile                  # Docker image for building
+└── README.adoc                 # This file
+----
+
+== Usage
+
+=== Local Build
+
+Build using Docker:
+
+[source,bash]
+----
+# Build Docker image
+docker build -t adoc-builder .
+
+# Build documents
+docker run --rm -v $(pwd)/docs:/docs:ro -v $(pwd)/output:/output adoc-builder
+----
+
+Build artifacts are output to `output/ja/` and `output/en/` directories.
+
+=== Build with GitHub Actions
+
+You can run the build in one of the following ways:
+
+. **On tag push**: Pushing a tag in `v*.*.*` format automatically triggers the build
+. **Manual execution**: You can manually run it from the "Run workflow" button in GitHub Actions
+
+Build artifacts can be downloaded as Artifacts.
+
+== Customization
+
+=== Editing Documents
+
+Edit `docs/ja/index.adoc` (Japanese) or `docs/en/index.adoc` (English) to change the document content.
+Common settings are managed in `config.adoc` in each language directory.
+
+=== Changing PDF Style
+
+Edit `docs/pdf-configs/style.yml` to customize the PDF appearance.
+
+== License
+
+MIT License

@@ -1,0 +1,72 @@
+include::config.adoc[]
+
+= AsciiDoc Template サンプルドキュメント
+
+== はじめに
+
+このドキュメントは、AsciiDoc Templateリポジトリの動作確認用サンプルです。
+GitHub Actionsを使用してHTMLとPDFを自動生成できます。
+
+== 機能一覧
+
+=== テキストフォーマット
+
+*太字* 、 _斜体_ 、 `等幅フォント` などの基本的なフォーマットが使用できます。
+
+=== リスト
+
+.順序なしリスト
+* 項目1
+* 項目2
+* 項目3
+
+.順序付きリスト
+. 最初の項目
+. 2番目の項目
+. 3番目の項目
+
+=== コードブロック
+
+[source,bash]
+----
+#!/bin/bash
+echo "Hello, AsciiDoc!"
+----
+
+=== テーブル
+
+[cols="1,2,3"]
+|===
+|ヘッダー1 |ヘッダー2 |ヘッダー3
+
+|セル1
+|セル2
+|セル3
+
+|セル4
+|セル5
+|セル6
+|===
+
+=== 引用
+
+[quote, AsciiDoc公式ドキュメント]
+____
+AsciiDocは、メモ、ドキュメント、記事、書籍、スライドショー、Webページ、manページなどを作成するためのテキストドキュメント形式です。
+____
+
+== ビルド方法
+
+Dockerを使用してビルドできます:
+
+[source,bash]
+----
+docker build -t adoc-builder .
+docker run --rm -v $(pwd)/docs:/docs:ro -v $(pwd)/output:/output adoc-builder
+----
+
+ビルド成果物は `output/` ディレクトリに出力されます。
+
+== まとめ
+
+このテンプレートを使用することで、AsciiDocドキュメントを簡単にHTMLやPDFに変換できます。

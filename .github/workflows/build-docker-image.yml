@@ -1,25 +1,28 @@
-name: Build and Push Docker Image
+name: Build HTML and PDF
 
 on:
   push:
-    branches:
-      - main
-    paths:
-      - 'Dockerfile'
-      - 'scripts/**'
+    tags:
+      - 'v[0-9]+.[0-9]+.[0-9]+*'
   workflow_dispatch:
 
 permissions:
-  contents: read
-  packages: write
+  contents: write
+  pages: write
+  id-token: write
+  packages: read
+
+concurrency:
+  group: asciidoc-build
+  cancel-in-progress: true
 
 env:
   REGISTRY: ghcr.io
   IMAGE_NAME: ${{ github.repository }}/adoc-builder
 
 jobs:
-  build-and-push:
-    name: Build and Push Docker Image
+  build:
+    name: Build HTML and PDF (Multilingual)
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -31,24 +34,19 @@ jobs:
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: Extract metadata for Docker
-        id: meta
-        uses: docker/metadata-action@v5
-        with:
-          images: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}
-          tags: |
-            type=raw,value=latest
-            type=sha,prefix=
+      - name: Pull Docker image
+        run: docker pull ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:latest
 
-      - name: Set up Docker Buildx
-        uses: docker/setup-buildx-action@v3
+      - name: Build HTML and PDF for all languages
+        run: |
+          docker run --rm \
+            -v $(pwd)/docs:/docs:ro \
+            -v $(pwd)/output:/output \
+            ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:latest
 
-      - name: Build and push Docker image
-        uses: docker/build-push-action@v6
+      - name: Upload artifacts
+        uses: actions/upload-artifact@v4
         with:
-          context: .
-          push: true
-          tags: ${{ steps.meta.outputs.tags }}
-          labels: ${{ steps.meta.outputs.labels }}
-          cache-from: type=gha
-          cache-to: type=gha,mode=max
+          name: asciidoc-output
+          path: output/
+          retention-days: 30

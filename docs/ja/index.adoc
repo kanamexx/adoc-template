@@ -110,7 +110,7 @@ docker build -t adoc-builder .
 docker run --rm -v $(pwd)/docs:/docs:ro -v $(pwd)/output:/output adoc-builder
 ----
 
-ビルド成果物は `output/` ディレクトリに出力されます。
+ビルド成果物は `output/ja/` と `output/en/` ディレクトリに出力されます。
 
 == まとめ
 

@@ -60,7 +60,7 @@ ____
 以下はサンプル画像です:
 
 .サンプル画像
-image::images/sample.png[AsciiDoc Template サンプル画像, 400, 300]
+image::../images/sample.png[AsciiDoc Template サンプル画像, 400, 300]
 
 === Mermaid図
 

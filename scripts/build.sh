@@ -1,13 +1,26 @@
 #!/bin/bash
-echo "Building HTML and PDF from AsciiDoc..."
+echo "Building HTML and PDF from AsciiDoc (multilingual)..."
 
-echo "Generating HTML..."
-asciidoctor -r asciidoctor-diagram -a allow-uri-read -a scripts=cjk -a mermaid-puppeteer-config=puppeteer-config.json -a data-uri -a mask -D ../output index.adoc
+LANGUAGES="ja en"
 
-echo "Copying assets..."
-cp -r images ../output/images
+for LANG in $LANGUAGES; do
+    echo ""
+    echo "=========================================="
+    echo "Building $LANG version..."
+    echo "=========================================="
+    
+    cd /docs/$LANG
+    
+    echo "Generating HTML ($LANG)..."
+    asciidoctor -r asciidoctor-diagram -a allow-uri-read -a scripts=cjk -a mermaid-puppeteer-config=../puppeteer-config.json -a data-uri -a mask -D /output/$LANG index.adoc
+    
+    echo "Copying assets ($LANG)..."
+    mkdir -p /output/$LANG/images
+    cp -r ../images/* /output/$LANG/images/
+    
+    echo "Generating PDF ($LANG)..."
+    asciidoctor-pdf -r asciidoctor-diagram -a allow-uri-read -a scripts=cjk -a pdf-theme=default-with-fallback-font -a mermaid-puppeteer-config=../puppeteer-config.json -D /output/$LANG index.adoc
+done
 
-echo "Generating PDF..."
-asciidoctor-pdf -r asciidoctor-diagram -a allow-uri-read -a scripts=cjk -a pdf-theme=default-with-fallback-font -a mermaid-puppeteer-config=puppeteer-config.json -D ../output index.adoc
-
-echo "Build complete! Files available in output/"
+echo ""
+echo "Build complete! Files available in output/ja/ and output/en/"

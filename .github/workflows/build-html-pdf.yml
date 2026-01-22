@@ -1,29 +1,23 @@
-name: Build HTML and PDF
-
-on:
-  push:
-    tags:
-      - 'v[0-9]+.[0-9]+.[0-9]+*'
-  workflow_dispatch:
-
-permissions:
-  contents: write
-  pages: write
-  id-token: write
-
-concurrency:
-  group: asciidoc-build
-  cancel-in-progress: true
-
-jobs:
-  build:
-    name: Build AsciiDoc to HTML and PDF
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
-      - name: Build with AsciiDoc Docker container
+        uses: actions/cache@v4
+        with:
+          path: /tmp/.buildx-cache
+          key: ${{ runner.os }}-buildx-${{ hashFiles('Dockerfile') }}
+          restore-keys: |
+            ${{ runner.os }}-buildx-
+      - name: Build Docker image with cache
+        uses: docker/build-push-action@v6
+        with:
+          context: .
+          load: true
+          tags: adoc-builder:latest
+          cache-from: type=local,src=/tmp/.buildx-cache
+          cache-to: type=local,dest=/tmp/.buildx-cache-new,mode=max
+      - name: Move cache
         run: |
-          docker build -t adoc-builder .
+          rm -rf /tmp/.buildx-cache
+          mv /tmp/.buildx-cache-new /tmp/.buildx-cache
+      - name: Build AsciiDoc documents
+        run: |
           docker run --rm -v $(pwd)/docs:/docs:ro -v $(pwd)/output:/output adoc-builder
       - name: Upload artifacts
         uses: actions/upload-artifact@v4

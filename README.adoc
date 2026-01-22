@@ -1,0 +1,77 @@
+= AsciiDoc Template
+
+AsciiDocドキュメントをHTMLおよびPDFに変換するためのテンプレートリポジトリです。
+
+== 概要
+
+このリポジトリは、AsciiDocを使用したドキュメント作成のためのテンプレートを提供します。
+Dockerコンテナを使用してビルド環境を統一し、GitHub Actionsで自動ビルドを実行できます。
+
+== 機能
+
+* AsciiDocからHTMLへの変換
+* AsciiDocからPDFへの変換（日本語対応）
+* Mermaid図のサポート
+* GitHub Actionsによる自動ビルド
+
+== ディレクトリ構成
+
+[source]
+----
+.
+├── .github/
+│   └── workflows/
+│       └── build-html-pdf.yml  # GitHub Actions ワークフロー
+├── docs/
+│   ├── config.adoc             # AsciiDoc共通設定
+│   ├── index.adoc              # メインドキュメント
+│   ├── pdf-configs/
+│   │   ├── config.js           # PDF設定
+│   │   └── style.yml           # PDFスタイル設定
+│   └── puppeteer-config.json   # Puppeteer設定（Mermaid用）
+├── scripts/
+│   └── build.sh                # ビルドスクリプト
+├── Dockerfile                  # ビルド用Dockerイメージ
+└── README.adoc                 # このファイル
+----
+
+== 使い方
+
+=== ローカルでのビルド
+
+Dockerを使用してビルドします:
+
+[source,bash]
+----
+# Dockerイメージをビルド
+docker build -t adoc-builder .
+
+# ドキュメントをビルド
+docker run --rm -v $(pwd)/docs:/docs:ro -v $(pwd)/output:/output adoc-builder
+----
+
+ビルド成果物は `output/` ディレクトリに出力されます。
+
+=== GitHub Actionsでのビルド
+
+以下のいずれかの方法でビルドを実行できます:
+
+. **タグプッシュ時**: `v*.*.*` 形式のタグをプッシュすると自動的にビルドが実行されます
+. **手動実行**: GitHub Actionsの「Run workflow」ボタンから手動で実行できます
+
+ビルド成果物はArtifactsとしてダウンロードできます。
+
+== カスタマイズ
+
+=== ドキュメントの編集
+
+`docs/index.adoc` を編集してドキュメントの内容を変更します。
+共通設定は `docs/config.adoc` で管理されています。
+
+=== PDFスタイルの変更
+
+`docs/pdf-configs/style.yml` を編集してPDFの見た目をカスタマイズできます。
+
+== ライセンス
+
+MIT License

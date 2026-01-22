@@ -110,7 +110,7 @@ docker build -t adoc-builder .
 docker run --rm -v $(pwd)/docs:/docs:ro -v $(pwd)/output:/output adoc-builder
 ----
 
-Build artifacts will be output to the `output/` directory.
+Build artifacts will be output to the `output/ja/` and `output/en/` directories.
 
 == Summary
 

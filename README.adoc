@@ -23,14 +23,19 @@ Dockerコンテナを使用してビルド環境を統一し、GitHub Actionsで
 │   └── workflows/
 │       └── build-html-pdf.yml  # GitHub Actions ワークフロー
 ├── docs/
-│   ├── config.adoc             # AsciiDoc共通設定
-│   ├── index.adoc              # メインドキュメント
+│   ├── ja/                     # 日本語ドキュメント
+│   │   ├── config.adoc         # AsciiDoc設定（日本語）
+│   │   └── index.adoc          # メインドキュメント（日本語）
+│   ├── en/                     # 英語ドキュメント
+│   │   ├── config.adoc         # AsciiDoc設定（英語）
+│   │   └── index.adoc          # メインドキュメント（英語）
+│   ├── images/                 # 共有画像
 │   ├── pdf-configs/
 │   │   ├── config.js           # PDF設定
 │   │   └── style.yml           # PDFスタイル設定
 │   └── puppeteer-config.json   # Puppeteer設定（Mermaid用）
 ├── scripts/
-│   └── build.sh                # ビルドスクリプト
+│   └── build.sh                # ビルドスクリプト（多言語対応）
 ├── Dockerfile                  # ビルド用Dockerイメージ
 └── README.adoc                 # このファイル
 ----
@@ -50,7 +55,7 @@ docker build -t adoc-builder .
 docker run --rm -v $(pwd)/docs:/docs:ro -v $(pwd)/output:/output adoc-builder
 ----
 
-ビルド成果物は `output/` ディレクトリに出力されます。
+ビルド成果物は `output/ja/` と `output/en/` ディレクトリに出力されます。
 
 === GitHub Actionsでのビルド
 
@@ -65,8 +70,8 @@ docker run --rm -v $(pwd)/docs:/docs:ro -v $(pwd)/output:/output adoc-builder
 
 === ドキュメントの編集
 
-`docs/index.adoc` を編集してドキュメントの内容を変更します。
-共通設定は `docs/config.adoc` で管理されています。
+`docs/ja/index.adoc`（日本語）または `docs/en/index.adoc`（英語）を編集してドキュメントの内容を変更します。
+共通設定は各言語ディレクトリの `config.adoc` で管理されています。
 
 === PDFスタイルの変更
 

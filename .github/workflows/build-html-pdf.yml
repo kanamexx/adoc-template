@@ -1,52 +1,71 @@
 name: Build HTML and PDF
-
+​
 on:
   push:
+    branches:
+      - main
     tags:
       - 'v[0-9]+.[0-9]+.[0-9]+*'
   workflow_dispatch:
-
+​
 permissions:
   contents: write
   pages: write
   id-token: write
   packages: read
-
+​
 concurrency:
   group: asciidoc-build
   cancel-in-progress: true
-
+​
 env:
   REGISTRY: ghcr.io
   IMAGE_NAME: ${{ github.repository }}/adoc-builder
-
+​
 jobs:
   build:
     name: Build HTML and PDF (Multilingual)
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-
+​
       - name: Log in to Container Registry
         uses: docker/login-action@v3
         with:
           registry: ${{ env.REGISTRY }}
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
-
+​
       - name: Pull Docker image
         run: docker pull ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:latest
-
+​
       - name: Build HTML and PDF for all languages
         run: |
           docker run --rm \
             -v $(pwd)/docs:/docs:ro \
             -v $(pwd)/output:/output \
             ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:latest
-
+​
       - name: Upload artifacts
         uses: actions/upload-artifact@v4
         with:
           name: asciidoc-output
           path: output/
           retention-days: 30
+​
+      - name: Upload English HTML for GitHub Pages
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: output/en/
+​
+  deploy:
+    name: Deploy to GitHub Pages
+    needs: build
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4

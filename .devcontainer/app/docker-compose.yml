@@ -1,0 +1,46 @@
+services:
+  asciidoctor:
+    build:
+      context: ../..
+      dockerfile: .devcontainer/app/asciidoctor.Dockerfile
+    volumes:
+      - ../../docs:/docs:ro,Z
+      - ../../output:/output:Z
+      - ../../scripts:/scripts:ro,Z
+    environment:
+      - KROKI_SERVER_URL=http://kroki:8000
+    depends_on:
+      - kroki
+    command: /bin/sh -c "while sleep 1000; do :; done"
+
+  kroki:
+    image: docker.io/yuzutech/kroki:${KROKI_VERSION:-0.30.1}
+    environment:
+      - KROKI_MERMAID_HOST=kroki-mermaid
+      - KROKI_MERMAID_PORT=8002
+    depends_on:
+      - kroki-mermaid
+    expose:
+      - "8000"
+
+  kroki-mermaid:
+    image: docker.io/yuzutech/kroki-mermaid:${KROKI_VERSION:-0.30.1}
+    environment:
+      - PUPPETEER_SKIP_CHROMIUM_DOWNLOAD=true
+      - DBUS_SESSION_BUS_ADDRESS=/dev/null
+    expose:
+      - "8002"
+
+  app:
+    image: docker.io/library/local-engineering-standards-app
+    build:
+      context: ../..
+      dockerfile: .devcontainer/app/Dockerfile
+    userns_mode: "keep-id"
+    volumes:
+      - type: bind
+        source: ../..
+        target: /workspace
+        consistency: cached
+    command: /bin/sh -c "while sleep 1000; do :; done"
+

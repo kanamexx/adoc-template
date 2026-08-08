@@ -40,15 +40,19 @@ jobs:
             type=raw,value=latest
             type=sha,prefix=
 
-      - name: Set up Docker Buildx
-        uses: docker/setup-buildx-action@v3
+      - name: Build and push Docker image (from compose)
+        run: |
+          docker compose -f .devcontainer/app/docker-compose.yml build asciidoctor
 
-      - name: Build and push Docker image
-        uses: docker/build-push-action@v6
-        with:
-          context: .
-          push: true
-          tags: ${{ steps.meta.outputs.tags }}
-          labels: ${{ steps.meta.outputs.labels }}
-          cache-from: type=gha
-          cache-to: type=gha,mode=max
+          IMAGE_ID=$(docker compose -f .devcontainer/app/docker-compose.yml images -q asciidoctor)
+          if [ -z "$IMAGE_ID" ]; then
+            echo "Failed to resolve built image for asciidoctor service"
+            exit 1
+          fi
+
+          while IFS= read -r tag; do
+            [ -n "$tag" ] || continue
+            echo "Tagging and pushing: $tag"
+            docker tag "$IMAGE_ID" "$tag"
+            docker push "$tag"
+          done <<< "${{ steps.meta.outputs.tags }}"

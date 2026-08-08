@@ -133,11 +133,17 @@ Dockerを使用してビルドします:
 
 [source,bash]
 ----
-# Dockerイメージをビルド
-docker build -t adoc-builder .
+# AsciiDocビルド用サービスをビルド
+podman compose -f .devcontainer/app/docker-compose.yml build asciidoctor
 
-# ドキュメントをビルド
-docker run --rm -v $(pwd)/docs:/docs:ro -v $(pwd)/output:/output adoc-builder
+# ドキュメントのビルド実行（HTML/PDF生成）
+podman compose -f .devcontainer/app/docker-compose.yml up \
+  --build \
+  --abort-on-container-exit \
+  --exit-code-from asciidoctor
+
+# 後片付け
+podman compose -f .devcontainer/app/docker-compose.yml down
 ----
 
 ビルド成果物は `output/en/` と `output/ja/` ディレクトリに出力されます。
@@ -164,4 +170,5 @@ docker run --rm -v $(pwd)/docs:/docs:ro -v $(pwd)/output:/output adoc-builder
 
 == ライセンス
 
-MIT License
+本リポジトリのコンテンツは link:LICENSE[CC0 1.0 Universal] のもとで公開されています。
+著作権および隣接する権利を法律の定める最大限の範囲で放棄します。

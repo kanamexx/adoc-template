@@ -11,7 +11,6 @@ services:
       - KROKI_SERVER_URL=http://kroki:8000
     depends_on:
       - kroki
-    command: /bin/sh -c "while sleep 1000; do :; done"
 
   kroki:
     image: docker.io/yuzutech/kroki:${KROKI_VERSION:-0.30.1}

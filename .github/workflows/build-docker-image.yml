@@ -42,33 +42,5 @@ jobs:
 
       - name: Build and push Docker images
         run: |
-          # Build asciidoctor image
-          docker build -t adoc-asciidoctor:latest -f .devcontainer/app/asciidoctor.Dockerfile .
-          IMAGE_ID=$(docker image ls -q adoc-asciidoctor:latest)
-          if [ -z "$IMAGE_ID" ]; then
-            echo "Failed to resolve built image for asciidoctor service"
-            exit 1
-          fi
-
-          while IFS= read -r tag; do
-            [ -n "$tag" ] || continue
-            echo "Tagging and pushing asciidoctor: $tag"
-            docker tag "$IMAGE_ID" "$tag"
-            docker push "$tag"
-          done <<< "${{ steps.meta.outputs.tags }}"
-
-          # Build app image
-          docker build -t docker.io/library/asciidoc-template-app:latest -f .devcontainer/app/Dockerfile .
-          APP_IMAGE_ID=$(docker image ls -q docker.io/library/asciidoc-template-app:latest)
-          if [ -z "$APP_IMAGE_ID" ]; then
-            echo "Failed to resolve built image for app service"
-            exit 1
-          fi
-
-          while IFS= read -r tag; do
-            [ -n "$tag" ] || continue
-            APP_TAG="${tag%/adoc-builder}/app"
-            echo "Tagging and pushing app: $APP_TAG"
-            docker tag "$APP_IMAGE_ID" "$APP_TAG"
-            docker push "$APP_TAG"
-          done <<< "${{ steps.meta.outputs.tags }}"
+          docker compose -f .devcontainer/app/docker-compose.yml build asciidoctor
+          docker push ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:latest

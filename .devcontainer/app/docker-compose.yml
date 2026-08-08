@@ -1,5 +1,6 @@
 services:
   asciidoctor:
+    image: ghcr.io/kanamexx/asciidoc-template/adoc-builder
     build:
       context: ../..
       dockerfile: .devcontainer/app/asciidoctor.Dockerfile

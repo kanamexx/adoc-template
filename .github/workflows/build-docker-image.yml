@@ -42,9 +42,9 @@ jobs:
 
       - name: Build and push Docker image (from compose)
         run: |
-          docker compose -f .devcontainer/app/docker-compose.yml build asciidoctor
+          COMPOSE_PROJECT_NAME=adoc docker compose -f .devcontainer/app/docker-compose.yml build --tag adoc-asciidoctor:latest asciidoctor
 
-          IMAGE_ID=$(docker compose -f .devcontainer/app/docker-compose.yml images -q asciidoctor)
+          IMAGE_ID=$(docker image ls -q adoc-asciidoctor:latest)
           if [ -z "$IMAGE_ID" ]; then
             echo "Failed to resolve built image for asciidoctor service"
             exit 1

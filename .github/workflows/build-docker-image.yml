@@ -42,7 +42,7 @@ jobs:
 
       - name: Build and push Docker image (from compose)
         run: |
-          COMPOSE_PROJECT_NAME=adoc docker compose -f .devcontainer/app/docker-compose.yml build --tag adoc-asciidoctor:latest asciidoctor
+          docker build -t adoc-asciidoctor:latest -f .devcontainer/app/asciidoctor.Dockerfile .
 
           IMAGE_ID=$(docker image ls -q adoc-asciidoctor:latest)
           if [ -z "$IMAGE_ID" ]; then

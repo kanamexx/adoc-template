@@ -36,13 +36,13 @@ jobs:
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: Pull images with Podman Compose
+      - name: Pull images
         run: |
-          podman compose -f .devcontainer/app/docker-compose.yml pull
+          docker compose -f .devcontainer/app/docker-compose.yml pull
 
       - name: Build HTML and PDF for all languages
         run: |
-          podman compose -f .devcontainer/app/docker-compose.yml up \
+          docker compose -f .devcontainer/app/docker-compose.yml up \
             --build \
             --abort-on-container-exit \
             --exit-code-from asciidoctor

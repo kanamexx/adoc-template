@@ -31,7 +31,7 @@ services:
       - "8002"
 
   app:
-    image: docker.io/library/local-engineering-standards-app
+    image: docker.io/library/asciidoc-template-app
     build:
       context: ../..
       dockerfile: .devcontainer/app/Dockerfile

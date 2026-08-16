@@ -11,8 +11,9 @@ It uses Docker containers to unify the build environment and enables automated b
 
 * Convert AsciiDoc to HTML
 * Convert AsciiDoc to PDF (with Japanese support)
-* Mermaid diagram support
-* Automated builds with GitHub Actions
+* Mermaid and D2 diagram support through Kroki
+* Dev Container support for a consistent editing environment
+* Automated builds with GitHub Actions, including GitHub Pages deployment
 
 == Directory Structure
 
@@ -21,18 +22,27 @@ It uses Docker containers to unify the build environment and enables automated b
 .
 ├── .github/
 │   └── workflows/
-│       └── build-html-pdf.yml  # GitHub Actions workflow
+│       ├── build-docker-image.yml # Build and publish the builder image
+│       └── build-html-pdf.yml     # Build and deploy workflow
+├── .devcontainer/
+│   └── app/
+│       ├── devcontainer.json       # VS Code Dev Container settings
+│       ├── docker-compose.yml      # AsciiDoc and Kroki services
+│       └── asciidoctor.Dockerfile  # AsciiDoc builder image
 ├── docs/
 │   ├── en/                     # English documents
 │   │   ├── config.adoc         # AsciiDoc configuration (English)
 │   │   └── index.adoc          # Main document (English)
 │   ├── ja/                     # Japanese documents
 │   │   ├── config.adoc         # AsciiDoc configuration (Japanese)
+│   │   ├── diagrams/            # Japanese D2 diagrams
 │   │   └── index.adoc          # Main document (Japanese)
 │   ├── images/                 # Shared images
 │   ├── pdf-configs/
 │   │   ├── config.js           # PDF configuration
-│   │   └── style.yml           # PDF style configuration
+│   │   ├── style.yml           # English PDF style configuration
+│   │   ├── styles-en.yml       # English PDF style overrides
+│   │   └── styles-ja.yml       # Japanese PDF style configuration
 │   └── puppeteer-config.json   # Puppeteer configuration (for Mermaid)
 ├── scripts/
 │   └── build.sh                # Build script (multilingual support)
@@ -44,18 +54,34 @@ It uses Docker containers to unify the build environment and enables automated b
 
 === Local Build
 
-Build using Docker:
+Docker Compose or Podman Compose is required. Build using the Compose stack:
 
 [source,bash]
 ----
-# Build Docker image
-docker build -t adoc-builder .
+# Build the AsciiDoc service image
+docker compose -f .devcontainer/app/docker-compose.yml build asciidoctor
 
-# Build documents
-docker run --rm -v $(pwd)/docs:/docs:ro -v $(pwd)/output:/output adoc-builder
+# Build HTML and PDF for both languages
+docker compose -f .devcontainer/app/docker-compose.yml up \
+  --build \
+  --abort-on-container-exit \
+  --exit-code-from asciidoctor
+
+# Stop and remove the Compose services
+docker compose -f .devcontainer/app/docker-compose.yml down
 ----
 
 Build artifacts are output to `output/en/` and `output/ja/` directories.
+The Compose stack starts Kroki and its Mermaid service so diagrams are generated
+without requiring a local diagram renderer. Set `KROKI_VERSION` to select a
+different Kroki image version.
+
+=== Dev Container
+
+Open the repository in VS Code and reopen it in the Dev Container to use the
+provided editor extensions and Kroki integration. The `app` service is the
+development workspace; the `asciidoctor`, `kroki`, and `kroki-mermaid` services
+are used for document builds.
 
 === Build with GitHub Actions
 
@@ -64,7 +90,13 @@ You can run the build in one of the following ways:
 . **On tag push**: Pushing a tag in `v*.*.*` format automatically triggers the build
 . **Manual execution**: You can manually run it from the "Run workflow" button in GitHub Actions
 
-Build artifacts can be downloaded as Artifacts.
+The English HTML output is also deployed to GitHub Pages. All generated HTML
+and PDF files can be downloaded from the `asciidoc-output` artifact, which is
+retained for 30 days.
+
+When changes are pushed to `main`, the Docker image workflow publishes the
+AsciiDoc builder image to GitHub Container Registry at
+`ghcr.io/<owner>/<repository>/adoc-builder:latest`.
 
 == Customization
 
@@ -75,11 +107,20 @@ Common settings are managed in `config.adoc` in each language directory.
 
 === Changing PDF Style
 
-Edit `docs/pdf-configs/style.yml` to customize the PDF appearance.
+Edit `docs/pdf-configs/style.yml` for the English PDF or
+`docs/pdf-configs/styles-ja.yml` for the Japanese PDF to customize the PDF
+appearance. `styles-en.yml` contains the English-specific theme settings.
+
+=== Adding Diagrams
+
+Add Mermaid or D2 source to the language document and reference it using the
+AsciiDoc Kroki integration. D2 diagrams use SVG output for PDF generation,
+while Mermaid diagrams use PNG output for consistent font rendering.
 
 == License
 
-MIT License
+This repository's content is released under the link:LICENSE[CC0 1.0 Universal].
+Copyright and related rights are waived to the fullest extent permitted by law.
 
 '''
 
@@ -96,8 +137,9 @@ Dockerコンテナを使用してビルド環境を統一し、GitHub Actionsで
 
 * AsciiDocからHTMLへの変換
 * AsciiDocからPDFへの変換（日本語対応）
-* Mermaid図のサポート
-* GitHub Actionsによる自動ビルド
+* Krokiを利用したMermaidおよびD2図のサポート
+* 一貫した編集環境を利用できるDev Container対応
+* GitHub Pagesへのデプロイを含むGitHub Actionsによる自動ビルド
 
 == ディレクトリ構成
 
@@ -106,18 +148,27 @@ Dockerコンテナを使用してビルド環境を統一し、GitHub Actionsで
 .
 ├── .github/
 │   └── workflows/
-│       └── build-html-pdf.yml  # GitHub Actions ワークフロー
+│       ├── build-docker-image.yml # ビルダーイメージのビルドと公開
+│       └── build-html-pdf.yml     # ビルドとデプロイのワークフロー
+├── .devcontainer/
+│   └── app/
+│       ├── devcontainer.json       # VS Code Dev Container設定
+│       ├── docker-compose.yml      # AsciiDocおよびKrokiサービス
+│       └── asciidoctor.Dockerfile  # AsciiDocビルダーイメージ
 ├── docs/
 │   ├── en/                     # 英語ドキュメント
 │   │   ├── config.adoc         # AsciiDoc設定（英語）
 │   │   └── index.adoc          # メインドキュメント（英語）
 │   ├── ja/                     # 日本語ドキュメント
 │   │   ├── config.adoc         # AsciiDoc設定（日本語）
+│   │   ├── diagrams/            # 日本語D2図
 │   │   └── index.adoc          # メインドキュメント（日本語）
 │   ├── images/                 # 共有画像
 │   ├── pdf-configs/
 │   │   ├── config.js           # PDF設定
-│   │   └── style.yml           # PDFスタイル設定
+│   │   ├── style.yml           # 英語PDFスタイル設定
+│   │   ├── styles-en.yml       # 英語PDF固有の設定
+│   │   └── styles-ja.yml       # 日本語PDFスタイル設定
 │   └── puppeteer-config.json   # Puppeteer設定（Mermaid用）
 ├── scripts/
 │   └── build.sh                # ビルドスクリプト（多言語対応）
@@ -147,15 +198,30 @@ podman compose -f .devcontainer/app/docker-compose.yml down
 ----
 
 ビルド成果物は `output/en/` と `output/ja/` ディレクトリに出力されます。
+ComposeスタックはKrokiおよびMermaidサービスも起動するため、ローカルに
+図のレンダラーをインストールせずに図を生成できます。使用するKrokiの
+イメージバージョンは `KROKI_VERSION` で変更できます。
+
+=== Dev Container
+
+リポジトリをVS Codeで開き、Dev Containerで再度開くと、提供されている
+拡張機能とKroki連携を利用できます。`app`サービスが開発用ワークスペース、
+`asciidoctor`、`kroki`、`kroki-mermaid`サービスがドキュメントビルド用です。
 
 === GitHub Actionsでのビルド
 
 以下のいずれかの方法でビルドを実行できます:
 
+. **mainへのプッシュ時**: `main`ブランチへのプッシュでビルドが実行されます
 . **タグプッシュ時**: `v*.*.*` 形式のタグをプッシュすると自動的にビルドが実行されます
 . **手動実行**: GitHub Actionsの「Run workflow」ボタンから手動で実行できます
 
-ビルド成果物はArtifactsとしてダウンロードできます。
+英語HTMLはGitHub Pagesにもデプロイされます。生成されたHTMLおよびPDFは
+`asciidoc-output` Artifactからダウンロードでき、保存期間は30日です。
+
+`main`への変更時には、DockerイメージのワークフローがAsciiDocビルダー
+イメージをGitHub Container Registryの
+`ghcr.io/<owner>/<repository>/adoc-builder:latest`へ公開します。
 
 == カスタマイズ
 
@@ -166,7 +232,15 @@ podman compose -f .devcontainer/app/docker-compose.yml down
 
 === PDFスタイルの変更
 
-`docs/pdf-configs/style.yml` を編集してPDFの見た目をカスタマイズできます。
+英語PDFは `docs/pdf-configs/style.yml`、日本語PDFは
+`docs/pdf-configs/styles-ja.yml` を編集して見た目をカスタマイズできます。
+`styles-en.yml` には英語固有のテーマ設定が含まれています。
+
+=== 図の追加
+
+言語別ドキュメントにMermaidまたはD2のソースを追加し、AsciiDocのKroki
+連携を使って参照します。PDF生成では、D2図はSVG、Mermaid図はフォントを
+安定して描画するためPNGとして出力されます。
 
 == ライセンス
 

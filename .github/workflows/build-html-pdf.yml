@@ -37,7 +37,8 @@ jobs:
 
       - name: Pull images
         run: |
-          docker compose -f .devcontainer/app/docker-compose.yml pull
+          docker compose -f .devcontainer/app/docker-compose.yml pull \
+            asciidoctor kroki kroki-mermaid
 
       - name: Build HTML and PDF for all languages
         run: |

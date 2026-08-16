@@ -1,0 +1,7 @@
+@startuml example
+Alice -> Bob: Authentication Request
+Bob --> Alice: Authentication Response
+
+Alice -> Bob: Another request
+Alice <-- Bob: Another response
+@enduml

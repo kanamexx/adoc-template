@@ -103,7 +103,14 @@ sequenceDiagram
 
 [d2, format=svg]
 ....
-include::diagrams/stakeholder-map.d2[]
+include::diagrams/example.d2[]
+....
+
+=== PlantUML図
+
+[plantuml, format=svg]
+....
+include::diagrams/example.puml[]
 ....
 
 

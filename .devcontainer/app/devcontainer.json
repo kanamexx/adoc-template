@@ -12,6 +12,7 @@
     "vscode": {
       "extensions": [
         "asciidoctor.asciidoctor-vscode",
+        "jebbs.plantuml",
         "github.copilot",
         "github.copilot-chat",
         "github.vscode-github-actions",
@@ -20,7 +21,10 @@
       "settings": {
         "terminal.integrated.defaultProfile.linux": "bash",
         "asciidoc.extensions.enableKroki": true,
-        "asciidoc.kroki.serverUrl": "http://kroki:8000"
+        "asciidoc.kroki.serverUrl": "http://kroki:8000",
+        "plantuml.render": "PlantUMLServer",
+        "plantuml.server": "http://kroki:8000/plantuml",
+        "plantuml.exportFormat": "svg"
       }
     }
   },

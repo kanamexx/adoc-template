@@ -20,7 +20,6 @@ concurrency:
 
 env:
   REGISTRY: ghcr.io
-  IMAGE_NAME: ${{ github.repository }}/adoc-builder
 
 jobs:
   build:
@@ -36,15 +35,17 @@ jobs:
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: Pull Docker image
-        run: docker pull ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:latest
+      - name: Pull images
+        run: |
+          docker compose -f .devcontainer/app/docker-compose.yml pull \
+            asciidoctor kroki kroki-mermaid
 
       - name: Build HTML and PDF for all languages
         run: |
-          docker run --rm \
-            -v $(pwd)/docs:/docs:ro \
-            -v $(pwd)/output:/output \
-            ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:latest
+          docker compose -f .devcontainer/app/docker-compose.yml up \
+            --build \
+            --abort-on-container-exit \
+            --exit-code-from asciidoctor
 
       - name: Upload artifacts
         uses: actions/upload-artifact@v4

@@ -1,0 +1,24 @@
+extends: ./style.yml
+font:
+  catalog:
+    Noto Sans CJK:
+      normal: /usr/share/fonts/noto/NotoSansCJK-Regular.ttc
+      bold: /usr/share/fonts/noto/NotoSansCJK-Bold.ttc
+      italic: /usr/share/fonts/noto/NotoSansCJK-Regular.ttc
+      bold_italic: /usr/share/fonts/noto/NotoSansCJK-Bold.ttc
+    M+ 1mn:
+      normal: /usr/share/fonts/noto/NotoSansCJK-Regular.ttc
+      bold: /usr/share/fonts/noto/NotoSansCJK-Bold.ttc
+      italic: /usr/share/fonts/noto/NotoSansCJK-Regular.ttc
+      bold_italic: /usr/share/fonts/noto/NotoSansCJK-Bold.ttc
+  fallbacks:
+    - Noto Sans CJK
+base:
+  font_family: Noto Sans CJK
+  font_size: 11
+  line_height: 1.45
+  text_align: justify
+heading:
+  font_family: Noto Sans CJK
+  font_style: bold
+  align: left

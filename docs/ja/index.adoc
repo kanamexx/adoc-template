@@ -1,6 +1,5 @@
-include::config.adoc[]
-
 = AsciiDoc Template サンプルドキュメント
+include::config.adoc[]
 
 == はじめに
 
@@ -99,6 +98,14 @@ sequenceDiagram
     Asciidoctor->>Output: ファイル出力
     Output->>User: HTML/PDFダウンロード
 ----
+
+=== D2図
+
+[d2, format=svg]
+....
+include::diagrams/stakeholder-map.d2[]
+....
+
 
 == ビルド方法
 
